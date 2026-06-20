@@ -1,0 +1,371 @@
+"""
+前端页面模板模块
+提供HTML页面内容
+"""
+
+def get_html_content() -> str:
+    """获取前端页面HTML内容"""
+    return """
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多模态商品智能系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input[type="text"], input[type="number"], input[type="file"], textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        .result { margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px; max-height: 200px; overflow-y: auto; }
+
+        /* 聊天区域样式 */
+        .chat-container { 
+            grid-column: 1 / -1; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .chat-header { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: #333; }
+        .chat-messages { 
+            height: 400px; 
+            overflow-y: auto; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px; 
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+        .chat-message { margin-bottom: 15px; display: flex; }
+        .chat-message.user { justify-content: flex-end; }
+        .chat-message.ai { justify-content: flex-start; }
+        .message-bubble { 
+            max-width: 70%; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            line-height: 1.5;
+        }
+        .chat-message.user .message-bubble { 
+            background-color: #4CAF50; 
+            color: white; 
+            border-bottom-right-radius: 4px;
+        }
+        .chat-message.ai .message-bubble { 
+            background-color: white; 
+            color: #333; 
+            border: 1px solid #ddd;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; margin: 0; }
+        .chat-input-area button { background-color: #2196F3; }
+        .chat-input-area button:hover { background-color: #1976D2; }
+    </style>
+</head>
+<body>
+    <h1 class="text-3xl font-bold mb-6">多模态商品智能系统</h1>
+    
+    <div class="container">
+        <!-- 添加商品（文本）区域 -->
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">添加商品（文本）</h2>
+            <div style="display: grid; gap: 10px;">
+                <input type="text" id="productName" placeholder="商品名称 *" required>
+                <input type="number" id="productPrice" placeholder="价格（元）" step="0.01" min="0">
+                <input type="text" id="productCategory" placeholder="分类（如：上衣、裤子、鞋子）">
+                <input type="text" id="productColor" placeholder="颜色（如：红色、蓝色）">
+                <input type="text" id="productMaterial" placeholder="面料材质（如：纯棉、涤纶）">
+                <input type="text" id="productTags" placeholder="标签（用逗号分隔）">
+                <textarea id="productDesc" placeholder="商品详细描述" rows="3"></textarea>
+                <button onclick="addText()" style="background-color: #4CAF50;">添加商品</button>
+            </div>
+            <div id="textResult" class="result"></div>
+        </div>
+
+        <!-- 添加商品（图片）区域 -->
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">添加商品（图片）</h2>
+            <div style="display: grid; gap: 10px;">
+                <input type="file" id="imageInput" accept="image/*" style="width: 100%;">
+                <input type="text" id="productNameImg" placeholder="商品名称 *">
+                <input type="number" id="productPriceImg" placeholder="价格（元）" step="0.01" min="0">
+                <input type="text" id="productCategoryImg" placeholder="分类">
+                <input type="text" id="productColorImg" placeholder="颜色">
+                <input type="text" id="productMaterialImg" placeholder="面料材质">
+                <input type="text" id="productTagsImg" placeholder="标签（用逗号分隔）">
+                <textarea id="imageDesc" placeholder="商品详细描述" rows="3"></textarea>
+                <button onclick="addImage()" style="background-color: #2196F3;">添加商品图片</button>
+            </div>
+            <div id="imageResult" class="result"></div>
+        </div>
+
+        <!-- 零样本分类区域 -->
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">零样本分类</h2>
+            <input type="file" id="classifyInput" accept="image/*">
+            <button onclick="classifyImage()">分类图片</button>
+            <div id="classifyResult" class="result"></div>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div class="chat-container">
+            <div class="chat-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>商品客服助手</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="historyCount" style="font-size: 0.875rem; color: #666;">对话: 0 条</span>
+                    <button onclick="clearChatHistory()" style="background-color: #f44336; font-size: 0.75rem; padding: 5px 10px;">清空历史</button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="请输入您的问题..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加文本商品
+        async function addText() {
+            const name = document.getElementById('productName').value.trim();
+            if (!name) { alert('请输入商品名称'); return; }
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('price', document.getElementById('productPrice').value || 0);
+            formData.append('category', document.getElementById('productCategory').value);
+            formData.append('color', document.getElementById('productColor').value);
+            formData.append('material', document.getElementById('productMaterial').value);
+            formData.append('tags', document.getElementById('productTags').value);
+            formData.append('description', document.getElementById('productDesc').value);
+
+            const response = await fetch('/add_text', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.product_id) {
+                document.getElementById('textResult').innerHTML =
+                    `<div style="color: #4CAF50; font-weight: bold;">✓ 商品添加成功！<br>商品ID: ${result.product_id}<br>名称: ${result.name}</div>`;
+            } else {
+                document.getElementById('textResult').innerText = JSON.stringify(result, null, 2);
+            }
+        }
+
+        // 添加图片商品
+        async function addImage() {
+            const fileInput = document.getElementById('imageInput');
+            if (!fileInput.files[0]) { alert('请选择图片'); return; }
+
+            const name = document.getElementById('productNameImg').value.trim();
+            if (!name) { alert('请输入商品名称'); return; }
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('name', name);
+            formData.append('price', document.getElementById('productPriceImg').value || 0);
+            formData.append('category', document.getElementById('productCategoryImg').value);
+            formData.append('color', document.getElementById('productColorImg').value);
+            formData.append('material', document.getElementById('productMaterialImg').value);
+            formData.append('tags', document.getElementById('productTagsImg').value);
+            formData.append('description', document.getElementById('imageDesc').value);
+
+            const response = await fetch('/add_image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.product_id) {
+                document.getElementById('imageResult').innerHTML =
+                    `<div style="color: #2196F3; font-weight: bold;">✓ 商品图片添加成功！<br>商品ID: ${result.product_id}<br>名称: ${result.name}</div>`;
+            } else {
+                document.getElementById('imageResult').innerText = JSON.stringify(result, null, 2);
+            }
+        }
+
+        // 分类图片
+        async function classifyImage() {
+            const fileInput = document.getElementById('classifyInput');
+            if (!fileInput.files[0]) { alert('请选择图片'); return; }
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+
+            const response = await fetch('/classify_image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            document.getElementById('classifyResult').innerText = JSON.stringify(result, null, 2);
+        }
+
+        // 添加消息到聊天区域
+        function addMessage(message, isUser) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message ' + (isUser ? 'user' : 'ai');
+            messageDiv.innerHTML = '<div class="message-bubble">' + message.replace(/\\n/g, '<br>') + '</div>';
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return messageDiv;
+        }
+
+        // 更新现有消息
+        function updateMessage(messageDiv, message) {
+            const bubble = messageDiv.querySelector('.message-bubble');
+            if (bubble) {
+                bubble.innerHTML = message.replace(/\\n/g, '<br>');
+            }
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 发送消息（流式输出）
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            input.value = '';
+
+            const aiMessageDiv = addMessage('', false);
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const contentType = response.headers.get('content-type');
+
+                if (contentType && contentType.includes('text/event-stream')) {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    let fullText = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\\n\\n');
+                        buffer = lines.pop();
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const data = JSON.parse(line.substring(6));
+
+                                    if (data.error) {
+                                        updateMessage(aiMessageDiv, data.error);
+                                        return;
+                                    }
+
+                                    if (data.delta) {
+                                        fullText += data.delta;
+                                        updateMessage(aiMessageDiv, fullText);
+                                    }
+
+                                    if (data.done) {
+                                        if (data.full) {
+                                            updateMessage(aiMessageDiv, data.full);
+                                        }
+                                        updateHistoryCount();
+                                        return;
+                                    }
+                                } catch (e) {
+                                    console.error('解析数据失败:', e);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    const result = await response.json();
+
+                    let replyText = '处理失败';
+                    if (result && typeof result === 'object') {
+                        replyText = result.reply || result.error || result.message || result.text || JSON.stringify(result);
+                    } else if (typeof result === 'string') {
+                        replyText = result;
+                    }
+
+                    if (typeof replyText === 'object') {
+                        replyText = JSON.stringify(replyText, null, 2);
+                    }
+
+                    updateMessage(aiMessageDiv, replyText);
+                    updateHistoryCount();
+                }
+            } catch (error) {
+                updateMessage(aiMessageDiv, '发送失败: ' + error.message);
+            }
+        }
+
+        // 处理回车键
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 清空对话历史
+        async function clearChatHistory() {
+            if (!confirm('确定要清空所有对话历史吗？')) return;
+
+            try {
+                const response = await fetch('/chat/clear', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = '';
+
+                updateHistoryCount();
+
+                alert(result.message);
+            } catch (error) {
+                alert('清空历史失败: ' + error.message);
+            }
+        }
+
+        // 更新对话历史计数
+        async function updateHistoryCount() {
+            try {
+                const response = await fetch('/chat/history');
+                const result = await response.json();
+
+                const historyCount = document.getElementById('historyCount');
+                if (historyCount) {
+                    historyCount.textContent = `对话: ${result.count} 条`;
+                }
+            } catch (error) {
+                console.error('获取历史计数失败:', error);
+            }
+        }
+
+        // 页面加载完成后滚动到最新消息
+        window.onload = function() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            updateHistoryCount();
+        };
+    </script>
+</body>
+</html>
+    """
+
+
+__all__ = ["get_html_content"]
