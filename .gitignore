@@ -1,3 +1,27 @@
 image/
 考核三.pdf
 说明.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 向量数据库
+vector_db/
+app/vector_db/
+入库/vector_db/
+*.sqlite3
