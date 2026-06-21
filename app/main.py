@@ -17,7 +17,7 @@ from src.routes.classify_routes import router as classify_router
 from src.routes.chat_routes import router as chat_router
 
 # 配置
-DASHSCOPE_API_KEY = "sk-8d51adfffd084d8c96936785d23cfdca"  # 用户需要填写自己的API Key
+DASHSCOPE_API_KEY = "your-dashscope-api-key-here"  # 请替换为您的阿里云DashScope API Key
 
 # 初始化应用
 app = FastAPI(title="多模态商品智能系统", version="1.0.0")
