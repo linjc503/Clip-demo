@@ -1,15 +1,40 @@
-# 多模态商品智能系统
+<div align="center">
 
-基于 CLIP + ChromaDB + Qwen-Agent 的商品智能检索与客服系统。
+# 🛍️ ClipCommerce
+
+### 多模态商品智能系统
+
+基于 CLIP + ChromaDB + Qwen-Agent 的商品智能检索与客服系统
+
+<p>
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?style=flat-square" alt="Python">
+  <img src="https://img.shields.io/badge/FastAPI-0.100+-green?style=flat-square" alt="FastAPI">
+  <img src="https://img.shields.io/badge/CLIP-ViT--B%2F32-purple?style=flat-square" alt="CLIP">
+  <img src="https://img.shields.io/badge/ChromaDB-latest-orange?style=flat-square" alt="ChromaDB">
+</p>
+
+</div>
 
 ## ✨ 功能特性
 
-- **多模态编码**：使用 CLIP 模型将图片和文本编码到统一向量空间
-- **向量数据库**：使用 ChromaDB 持久化存储商品向量，支持高效相似度检索
-- **智能检索**：支持文本搜索和图片搜索两种方式查找相似商品
-- **零样本分类**：无需训练，直接将商品图片分类到预设类别
-- **智能客服**：基于 Qwen 大模型的对话式商品问答助手，支持流式输出
-- **RAG 检索增强**：聊天时自动检索商品库，提供准确的商品推荐
+- 🎨 **产品级前端页面**：深色科技风落地页设计，玻璃态效果，流畅交互动效
+- 🧠 **多模态编码**：使用 CLIP 模型将图片和文本编码到统一向量空间
+- 💾 **向量数据库**：使用 ChromaDB 持久化存储商品向量，支持高效相似度检索
+- 🔍 **智能检索**：支持文本搜索和图片搜索两种方式查找相似商品
+- 📊 **零样本分类**：无需训练，直接将商品图片分类到预设类别
+- 🤖 **智能客服**：基于 Qwen 大模型的对话式商品问答助手，支持流式输出
+- 📚 **RAG 检索增强**：聊天时自动检索商品库，提供准确的商品推荐
+
+## 🖼️ 页面展示
+
+产品落地页风格设计，包含四大核心区域：
+
+- **Hero 区**：大标题 + 数据统计卡片，直观展示产品价值
+- **功能展示**：三栏特性卡片，清晰呈现核心能力
+- **在线演示**：Tab 切换的商品入库 / 零样本分类，即开即用
+- **AI 客服**：独立聊天界面，7x24 小时智能服务
+
+设计亮点：深色科技风主题 · 玻璃态卡片效果 · 翡翠绿强调色 · 流畅交互动效 · 响应式布局
 
 ## 🛠️ 技术栈
 
@@ -19,7 +44,8 @@
 | 向量数据库 | ChromaDB |
 | Web 框架 | FastAPI |
 | 大模型 Agent | Qwen-Agent（通义千问） |
-| 前端 | HTML + TailwindCSS + 原生 JS |
+| 前端 | HTML5 + TailwindCSS + 原生 JavaScript |
+| 设计风格 | 深色科技风 · 玻璃态 · 落地页布局 |
 | 语言 | Python 3.10+ |
 
 ## 📁 项目结构
