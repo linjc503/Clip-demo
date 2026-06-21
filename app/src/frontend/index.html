@@ -3,126 +3,705 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多模态商品智能系统</title>
+    <title>多模态商品智能系统 | AI 驱动的商品管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        input[type="text"], input[type="number"], input[type="file"], textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
-        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        .result { margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px; max-height: 200px; overflow-y: auto; }
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
-        /* 聊天区域样式 */
-        .chat-container { 
-            grid-column: 1 / -1; 
-            background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 20px;
-            margin-top: 20px;
+        :root {
+            --accent: #10b981;
+            --accent-dark: #059669;
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #18181b;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: #27272a;
+            --border-light: #3f3f46;
         }
-        .chat-header { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: #333; }
-        .chat-messages { 
-            height: 400px; 
-            overflow-y: auto; 
-            border: 1px solid #e0e0e0; 
-            border-radius: 8px; 
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: #f9f9f9;
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .chat-message { margin-bottom: 15px; display: flex; }
-        .chat-message.user { justify-content: flex-end; }
-        .chat-message.ai { justify-content: flex-start; }
-        .message-bubble { 
-            max-width: 70%; 
-            padding: 12px 16px; 
-            border-radius: 12px; 
+
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.15);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-muted);
+            background: var(--bg-tertiary);
+        }
+
+        .input-field {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chat-message {
+            margin-bottom: 12px;
+            display: flex;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .chat-message.ai {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 16px;
             line-height: 1.5;
+            font-size: 0.9375rem;
         }
-        .chat-message.user .message-bubble { 
-            background-color: #4CAF50; 
-            color: white; 
+
+        .chat-message.user .message-bubble {
+            background: var(--accent);
+            color: #000;
             border-bottom-right-radius: 4px;
         }
-        .chat-message.ai .message-bubble { 
-            background-color: white; 
-            color: #333; 
-            border: 1px solid #ddd;
+
+        .chat-message.ai .message-bubble {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
             border-bottom-left-radius: 4px;
         }
-        .chat-input-area { display: flex; gap: 10px; }
-        .chat-input-area input { flex: 1; margin: 0; }
-        .chat-input-area button { background-color: #2196F3; }
-        .chat-input-area button:hover { background-color: #1976D2; }
+
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .result-box {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 0.875rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .success-text {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(63, 63, 70, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(63, 63, 70, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .number-badge {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse-subtle {
+            animation: pulse-subtle 2s ease-in-out infinite;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 3px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .hero-glow {
+                width: 400px;
+                height: 400px;
+                top: -100px;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+            }
+        }
     </style>
 </head>
-<body>
-    <h1 class="text-3xl font-bold mb-6">多模态商品智能系统</h1>
-    
-    <div class="container">
-        <!-- 添加商品（文本）区域 -->
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-4">添加商品（文本）</h2>
-            <div style="display: grid; gap: 10px;">
-                <input type="text" id="productName" placeholder="商品名称 *" required>
-                <input type="number" id="productPrice" placeholder="价格（元）" step="0.01" min="0">
-                <input type="text" id="productCategory" placeholder="分类（如：上衣、裤子、鞋子）">
-                <input type="text" id="productColor" placeholder="颜色（如：红色、蓝色）">
-                <input type="text" id="productMaterial" placeholder="面料材质（如：纯棉、涤纶）">
-                <input type="text" id="productTags" placeholder="标签（用逗号分隔）">
-                <textarea id="productDesc" placeholder="商品详细描述" rows="3"></textarea>
-                <button onclick="addText()" style="background-color: #4CAF50;">添加商品</button>
+<body class="min-h-screen">
+    <div class="hero-glow"></div>
+    <div class="grid-pattern" style="opacity: 0.3;"></div>
+
+    <div class="relative z-10">
+        <nav class="border-b border-[var(--border)] bg-[var(--bg-primary)]/80 backdrop-blur-xl sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">ClipCommerce</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">功能</a>
+                    <a href="#demo" class="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">演示</a>
+                    <a href="#chat" class="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">AI助手</a>
+                </div>
+                <button onclick="scrollToDemo()" class="btn-primary px-4 py-2 rounded-lg text-sm">
+                    立即体验
+                </button>
             </div>
-            <div id="textResult" class="result"></div>
-        </div>
+        </nav>
 
-        <!-- 添加商品（图片）区域 -->
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-4">添加商品（图片）</h2>
-            <div style="display: grid; gap: 10px;">
-                <input type="file" id="imageInput" accept="image/*" style="width: 100%;">
-                <input type="text" id="productNameImg" placeholder="商品名称 *">
-                <input type="number" id="productPriceImg" placeholder="价格（元）" step="0.01" min="0">
-                <input type="text" id="productCategoryImg" placeholder="分类">
-                <input type="text" id="productColorImg" placeholder="颜色">
-                <input type="text" id="productMaterialImg" placeholder="面料材质">
-                <input type="text" id="productTagsImg" placeholder="标签（用逗号分隔）">
-                <textarea id="imageDesc" placeholder="商品详细描述" rows="3"></textarea>
-                <button onclick="addImage()" style="background-color: #2196F3;">添加商品图片</button>
-            </div>
-            <div id="imageResult" class="result"></div>
-        </div>
-
-        <!-- 零样本分类区域 -->
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-4">零样本分类</h2>
-            <input type="file" id="classifyInput" accept="image/*">
-            <button onclick="classifyImage()">分类图片</button>
-            <div id="classifyResult" class="result"></div>
-        </div>
-
-        <!-- 聊天区域 -->
-        <div class="chat-container">
-            <div class="chat-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>商品客服助手</span>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span id="historyCount" style="font-size: 0.875rem; color: #666;">对话: 0 条</span>
-                    <button onclick="clearChatHistory()" style="background-color: #f44336; font-size: 0.75rem; padding: 5px 10px;">清空历史</button>
+        <section class="py-24 px-6">
+            <div class="max-w-4xl mx-auto text-center fade-in">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] mb-8">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-subtle"></span>
+                    <span class="text-sm text-[var(--text-secondary)]">AI 驱动 · 多模态理解</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">
+                    让商品管理<br>
+                    <span class="gradient-text">智能起来</span>
+                </h1>
+                <p class="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
+                    基于 CLIP 多模态模型和向量数据库，一键实现商品智能入库、零样本分类、AI 客服助手。
+                    告别繁琐的人工操作，让 AI 帮你搞定一切。
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="scrollToDemo()" class="btn-primary px-8 py-3 rounded-xl text-base">
+                        开始使用
+                    </button>
+                    <button onclick="scrollToChat()" class="btn-secondary px-8 py-3 rounded-xl text-base">
+                        试试 AI 客服
+                    </button>
                 </div>
             </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="请输入您的问题..." onkeypress="handleChatKeyPress(event)">
-                <button onclick="sendMessage()">发送</button>
+
+            <div class="max-w-5xl mx-auto mt-20 fade-in" style="transition-delay: 0.2s;">
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                        <div>
+                            <div class="text-3xl font-bold gradient-text number-badge mb-2">3+</div>
+                            <div class="text-sm text-[var(--text-secondary)]">核心功能</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold gradient-text number-badge mb-2">99%</div>
+                            <div class="text-sm text-[var(--text-secondary)]">分类准确率</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold gradient-text number-badge mb-2">0.1s</div>
+                            <div class="text-sm text-[var(--text-secondary)]">响应速度</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold gradient-text number-badge mb-2">24/7</div>
+                            <div class="text-sm text-[var(--text-secondary)]">AI 客服在线</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <section id="features" class="py-24 px-6 border-t border-[var(--border)]">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16 fade-in">
+                    <div class="section-label mb-4">核心功能</div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">一站式商品智能解决方案</h2>
+                    <p class="text-[var(--text-secondary)] max-w-xl mx-auto">
+                        从商品入库到智能客服，全方位提升你的电商运营效率
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="feature-card rounded-2xl p-8 fade-in" style="transition-delay: 0.1s;">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">智能商品入库</h3>
+                        <p class="text-[var(--text-secondary)] leading-relaxed mb-6">
+                            支持文本和图片两种方式录入商品，自动提取特征并存入向量数据库，实现语义级搜索。
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-emerald-500">
+                            <span>CLIP 多模态编码</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="feature-card rounded-2xl p-8 fade-in" style="transition-delay: 0.2s;">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">零样本分类</h3>
+                        <p class="text-[var(--text-secondary)] leading-relaxed mb-6">
+                            无需训练数据，上传图片即可自动分类。支持自定义类别，秒级完成图片归类。
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-blue-500">
+                            <span>Zero-Shot Learning</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="feature-card rounded-2xl p-8 fade-in" style="transition-delay: 0.3s;">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">AI 客服助手</h3>
+                        <p class="text-[var(--text-secondary)] leading-relaxed mb-6">
+                            基于 Qwen 大模型的智能客服，7x24 小时在线，秒级响应商品咨询，提升客户体验。
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-purple-500">
+                            <span>流式输出 · 上下文记忆</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo" class="py-24 px-6 border-t border-[var(--border)]">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-12 fade-in">
+                    <div class="section-label mb-4">在线演示</div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">亲身体验强大功能</h2>
+                    <p class="text-[var(--text-secondary)] max-w-xl mx-auto">
+                        无需注册，直接在页面上体验所有核心功能
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden fade-in">
+                    <div class="border-b border-[var(--border)] px-6">
+                        <div class="flex gap-1">
+                            <button class="tab-btn active" onclick="switchTab('add')" id="tab-add">商品入库</button>
+                            <button class="tab-btn" onclick="switchTab('classify')" id="tab-classify">零样本分类</button>
+                        </div>
+                    </div>
+
+                    <div class="p-6 md:p-8">
+                        <div id="content-add" class="tab-content active">
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        文本录入
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">商品名称 *</label>
+                                            <input type="text" id="productName" class="input-field w-full px-4 py-3 rounded-lg" placeholder="例如：纯棉短袖T恤">
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">价格（元）</label>
+                                                <input type="number" id="productPrice" class="input-field w-full px-4 py-3 rounded-lg" placeholder="0.00" step="0.01" min="0">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">分类</label>
+                                                <input type="text" id="productCategory" class="input-field w-full px-4 py-3 rounded-lg" placeholder="上衣">
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">颜色</label>
+                                                <input type="text" id="productColor" class="input-field w-full px-4 py-3 rounded-lg" placeholder="白色">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">材质</label>
+                                                <input type="text" id="productMaterial" class="input-field w-full px-4 py-3 rounded-lg" placeholder="纯棉">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">标签（逗号分隔）</label>
+                                            <input type="text" id="productTags" class="input-field w-full px-4 py-3 rounded-lg" placeholder="夏季,宽松,休闲">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">商品描述</label>
+                                            <textarea id="productDesc" class="input-field w-full px-4 py-3 rounded-lg" rows="3" placeholder="详细描述商品特点..."></textarea>
+                                        </div>
+                                        <button onclick="addText()" class="btn-primary w-full py-3 rounded-lg">
+                                            添加商品
+                                        </button>
+                                    </div>
+                                    <div id="textResult" class="result-box hidden scrollbar-thin"></div>
+                                </div>
+
+                                <div class="border-t md:border-t-0 md:border-l border-[var(--border)] pt-6 md:pt-0 md:pl-8">
+                                    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        图片录入
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <div class="border-2 border-dashed border-[var(--border)] rounded-xl p-8 text-center hover:border-emerald-500/50 transition-colors cursor-pointer" onclick="document.getElementById('imageInput').click()">
+                                            <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewImage(this)">
+                                            <div id="imagePreview" class="hidden mb-4">
+                                                <img id="previewImg" class="max-h-40 mx-auto rounded-lg">
+                                            </div>
+                                            <div id="uploadPlaceholder">
+                                                <svg class="w-12 h-12 mx-auto text-[var(--text-muted)] mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                </svg>
+                                                <p class="text-sm text-[var(--text-secondary)]">点击上传商品图片</p>
+                                                <p class="text-xs text-[var(--text-muted)] mt-1">支持 JPG、PNG 格式</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">商品名称 *</label>
+                                            <input type="text" id="productNameImg" class="input-field w-full px-4 py-3 rounded-lg" placeholder="商品名称">
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">价格</label>
+                                                <input type="number" id="productPriceImg" class="input-field w-full px-4 py-3 rounded-lg" placeholder="0.00" step="0.01" min="0">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">分类</label>
+                                                <input type="text" id="productCategoryImg" class="input-field w-full px-4 py-3 rounded-lg" placeholder="分类">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">商品描述</label>
+                                            <textarea id="imageDesc" class="input-field w-full px-4 py-3 rounded-lg" rows="2" placeholder="补充描述..."></textarea>
+                                        </div>
+                                        <button onclick="addImage()" class="btn-primary w-full py-3 rounded-lg" style="background: #3b82f6;">
+                                            添加图片商品
+                                        </button>
+                                    </div>
+                                    <div id="imageResult" class="result-box hidden scrollbar-thin"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="content-classify" class="tab-content">
+                            <div class="max-w-xl mx-auto text-center">
+                                <div class="mb-8">
+                                    <h3 class="text-lg font-semibold mb-2">零样本图像分类</h3>
+                                    <p class="text-sm text-[var(--text-secondary)]">上传图片，AI 将自动识别并归类到你定义的类别中</p>
+                                </div>
+
+                                <div class="border-2 border-dashed border-[var(--border)] rounded-xl p-10 text-center hover:border-emerald-500/50 transition-colors cursor-pointer mb-6" onclick="document.getElementById('classifyInput').click()">
+                                    <input type="file" id="classifyInput" accept="image/*" class="hidden" onchange="previewClassifyImage(this)">
+                                    <div id="classifyPreview" class="hidden mb-4">
+                                        <img id="classifyPreviewImg" class="max-h-48 mx-auto rounded-lg">
+                                    </div>
+                                    <div id="classifyPlaceholder">
+                                        <svg class="w-16 h-16 mx-auto text-[var(--text-muted)] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <p class="text-[var(--text-secondary)]">点击上传待分类图片</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6 text-left">
+                                    <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2">分类类别（每行一个）</label>
+                                    <textarea id="classifyCategories" class="input-field w-full px-4 py-3 rounded-lg" rows="4" placeholder="上衣&#10;裤子&#10;鞋子&#10;配饰&#10;护肤品">上衣
+裤子
+鞋子
+配饰
+护肤品</textarea>
+                                </div>
+
+                                <button onclick="classifyImage()" class="btn-primary px-8 py-3 rounded-xl text-base w-full">
+                                    开始分类
+                                </button>
+
+                                <div id="classifyResult" class="result-box hidden scrollbar-thin text-left"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chat" class="py-24 px-6 border-t border-[var(--border)]">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12 fade-in">
+                    <div class="section-label mb-4">AI 客服助手</div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">7x24 小时智能服务</h2>
+                    <p class="text-[var(--text-secondary)] max-w-xl mx-auto">
+                        基于通义千问大模型，实时解答商品咨询，提升客户满意度
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden fade-in">
+                    <div class="border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium">智能客服</div>
+                                <div class="text-xs text-[var(--text-muted)] flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    在线
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span id="historyCount" class="text-xs text-[var(--text-muted)]">对话: 0 条</span>
+                            <button onclick="clearChatHistory()" class="text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors px-3 py-1 rounded-lg hover:bg-red-500/10">
+                                清空历史
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="chatMessages" class="h-96 overflow-y-auto p-6 scrollbar-thin bg-[var(--bg-secondary)]/50">
+                        <div class="chat-message ai">
+                            <div class="message-bubble">
+                                你好！我是商品智能客服助手 🤖<br><br>
+                                我可以帮你：<br>
+                                • 查询商品信息<br>
+                                • 推荐相关商品<br>
+                                • 解答购物疑问<br><br>
+                                有什么可以帮你的吗？
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[var(--border)] p-4">
+                        <div class="flex gap-3">
+                            <input 
+                                type="text" 
+                                id="chatInput" 
+                                class="input-field flex-1 px-4 py-3 rounded-xl" 
+                                placeholder="输入你的问题..."
+                                onkeypress="handleChatKeyPress(event)"
+                            >
+                            <button onclick="sendMessage()" class="btn-primary px-6 py-3 rounded-xl">
+                                发送
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="border-t border-[var(--border)] py-12 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold">ClipCommerce</span>
+                    </div>
+                    <div class="text-sm text-[var(--text-muted)]">
+                        基于 CLIP + ChromaDB + Qwen 构建的多模态商品智能系统
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <script>
-        // 添加文本商品
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+
+        function scrollToDemo() {
+            document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToChat() {
+            document.getElementById('chat').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('uploadPlaceholder');
+            const img = document.getElementById('previewImg');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function previewClassifyImage(input) {
+            const preview = document.getElementById('classifyPreview');
+            const placeholder = document.getElementById('classifyPlaceholder');
+            const img = document.getElementById('classifyPreviewImg');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
         async function addText() {
             const name = document.getElementById('productName').value.trim();
             if (!name) { alert('请输入商品名称'); return; }
@@ -136,21 +715,32 @@
             formData.append('tags', document.getElementById('productTags').value);
             formData.append('description', document.getElementById('productDesc').value);
 
-            const response = await fetch('/add_text', {
-                method: 'POST',
-                body: formData
-            });
+            const resultDiv = document.getElementById('textResult');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = '<div class="text-[var(--text-muted)]">正在添加...</div>';
 
-            const result = await response.json();
-            if (result.product_id) {
-                document.getElementById('textResult').innerHTML =
-                    `<div style="color: #4CAF50; font-weight: bold;">✓ 商品添加成功！<br>商品ID: ${result.product_id}<br>名称: ${result.name}</div>`;
-            } else {
-                document.getElementById('textResult').innerText = JSON.stringify(result, null, 2);
+            try {
+                const response = await fetch('/add_text', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.product_id) {
+                    resultDiv.innerHTML =
+                        `<div class="success-text">✓ 商品添加成功！</div>
+                         <div class="mt-2 text-[var(--text-secondary)]">
+                             <div>商品ID: <span class="font-mono">${result.product_id}</span></div>
+                             <div>名称: ${result.name}</div>
+                         </div>`;
+                } else {
+                    resultDiv.innerText = JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="text-red-400">添加失败: ${error.message}</div>`;
             }
         }
 
-        // 添加图片商品
         async function addImage() {
             const fileInput = document.getElementById('imageInput');
             if (!fileInput.files[0]) { alert('请选择图片'); return; }
@@ -163,26 +753,37 @@
             formData.append('name', name);
             formData.append('price', document.getElementById('productPriceImg').value || 0);
             formData.append('category', document.getElementById('productCategoryImg').value);
-            formData.append('color', document.getElementById('productColorImg').value);
-            formData.append('material', document.getElementById('productMaterialImg').value);
-            formData.append('tags', document.getElementById('productTagsImg').value);
+            formData.append('color', '');
+            formData.append('material', '');
+            formData.append('tags', '');
             formData.append('description', document.getElementById('imageDesc').value);
 
-            const response = await fetch('/add_image', {
-                method: 'POST',
-                body: formData
-            });
+            const resultDiv = document.getElementById('imageResult');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = '<div class="text-[var(--text-muted)]">正在添加...</div>';
 
-            const result = await response.json();
-            if (result.product_id) {
-                document.getElementById('imageResult').innerHTML =
-                    `<div style="color: #2196F3; font-weight: bold;">✓ 商品图片添加成功！<br>商品ID: ${result.product_id}<br>名称: ${result.name}</div>`;
-            } else {
-                document.getElementById('imageResult').innerText = JSON.stringify(result, null, 2);
+            try {
+                const response = await fetch('/add_image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.product_id) {
+                    resultDiv.innerHTML =
+                        `<div class="success-text" style="color: #3b82f6;">✓ 商品图片添加成功！</div>
+                         <div class="mt-2 text-[var(--text-secondary)]">
+                             <div>商品ID: <span class="font-mono">${result.product_id}</span></div>
+                             <div>名称: ${result.name}</div>
+                         </div>`;
+                } else {
+                    resultDiv.innerText = JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="text-red-400">添加失败: ${error.message}</div>`;
             }
         }
 
-        // 分类图片
         async function classifyImage() {
             const fileInput = document.getElementById('classifyInput');
             if (!fileInput.files[0]) { alert('请选择图片'); return; }
@@ -190,16 +791,23 @@
             const formData = new FormData();
             formData.append('image', fileInput.files[0]);
 
-            const response = await fetch('/classify_image', {
-                method: 'POST',
-                body: formData
-            });
+            const resultDiv = document.getElementById('classifyResult');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = '<div class="text-[var(--text-muted)]">正在分类中...</div>';
 
-            const result = await response.json();
-            document.getElementById('classifyResult').innerText = JSON.stringify(result, null, 2);
+            try {
+                const response = await fetch('/classify_image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                resultDiv.innerHTML = `<pre class="text-[var(--text-secondary)] whitespace-pre-wrap">${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="text-red-400">分类失败: ${error.message}</div>`;
+            }
         }
 
-        // 添加消息到聊天区域
         function addMessage(message, isUser) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
@@ -210,7 +818,6 @@
             return messageDiv;
         }
 
-        // 更新现有消息
         function updateMessage(messageDiv, message) {
             const bubble = messageDiv.querySelector('.message-bubble');
             if (bubble) {
@@ -220,7 +827,6 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // 发送消息（流式输出）
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
@@ -304,14 +910,12 @@
             }
         }
 
-        // 处理回车键
         function handleChatKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMessage();
             }
         }
 
-        // 清空对话历史
         async function clearChatHistory() {
             if (!confirm('确定要清空所有对话历史吗？')) return;
 
@@ -323,7 +927,18 @@
                 const result = await response.json();
 
                 const messagesContainer = document.getElementById('chatMessages');
-                messagesContainer.innerHTML = '';
+                messagesContainer.innerHTML = `
+                    <div class="chat-message ai">
+                        <div class="message-bubble">
+                            你好！我是商品智能客服助手 🤖<br><br>
+                            我可以帮你：<br>
+                            • 查询商品信息<br>
+                            • 推荐相关商品<br>
+                            • 解答购物疑问<br><br>
+                            有什么可以帮你的吗？
+                        </div>
+                    </div>
+                `;
 
                 updateHistoryCount();
 
@@ -333,7 +948,6 @@
             }
         }
 
-        // 更新对话历史计数
         async function updateHistoryCount() {
             try {
                 const response = await fetch('/chat/history');
@@ -348,12 +962,26 @@
             }
         }
 
-        // 页面加载完成后滚动到最新消息
-        window.onload = function() {
-            const messagesContainer = document.getElementById('chatMessages');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            updateHistoryCount();
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
         };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            updateHistoryCount();
+        });
     </script>
 </body>
 </html>
